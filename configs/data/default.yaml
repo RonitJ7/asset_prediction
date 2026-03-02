@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------
+# Data configuration
+# ---------------------------------------------------------------------------
+
+# Where processed CSVs and JSONs live
+data_dir: processed_data
+
+# Filenames
+target_returns_filename: future_1day_returns.csv
+
+# Feature engineering
+feature_window: 20       # past trading days used as raw lag features
+vol_window: 20           # rolling window for realised-volatility features
+lookbacks: [5, 10]       # sub-windows for mean / std / EWMA / RSI features
+target_horizon: 1        # forward-return horizon in trading days
+
+# Lag-lead modelling
+lag_configs: [1, 2, 5, 10]   # pre-computed lag steps in the lag lookup table
+
+# Graph
+corr_threshold: 0.27      # |corr| cutoff for correlation edges
+
+# Cross-validation
+n_splits: 5              # TimeSeriesSplit folds
+embargo: 15              # training samples dropped before each test set

@@ -1,0 +1,6 @@
+defaults:
+  - data: default
+  - _self_
+
+project_name: asset_prediction
+output_dir: outputs
