@@ -130,15 +130,15 @@ def train_mlp_fold(
     ----------
     model     : ReturnClassifierMLP (already on device)
     fold_data : FoldData for this fold
-    cfg       : Hydra DictConfig with cfg.mlp.* and cfg.training.*
+    cfg       : Hydra DictConfig with cfg.model.mlp.* and cfg.training.mlp.*
     device    : torch device
 
     Returns
     -------
     dict with keys: epoch_losses, epoch_accs
     """
-    tcfg = cfg.training
-    mcfg = cfg.mlp
+    tcfg = cfg.training.mlp   # MLP-specific training params
+    mcfg = cfg.model.mlp      # MLP architecture params (includes epochs)
 
     lr = float(tcfg.lr)
     weight_decay = float(tcfg.weight_decay)
