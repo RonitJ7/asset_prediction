@@ -1,5 +1,7 @@
 defaults:
   - data: default
+  - model: default
+  - training: default
   - _self_
 
 project_name: asset_prediction

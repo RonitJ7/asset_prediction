@@ -69,6 +69,7 @@ def main(cfg: DictConfig) -> None:
         lag_configs=list(cfg.data.lag_configs),
         # data-source params
         target_returns_filename=cfg.data.target_returns_filename,
+        use_fundamental_data=cfg.data.use_fundamental_data,
     )
 
     fold_data_list           = data["fold_data_list"]

@@ -13,6 +13,7 @@ feature_window: 20       # past trading days used as raw lag features
 vol_window: 20           # rolling window for realised-volatility features
 lookbacks: [5, 10]       # sub-windows for mean / std / EWMA / RSI features
 target_horizon: 1        # forward-return horizon in trading days
+use_fundamental_data: True
 
 # Lag-lead modelling
 lag_configs: [1, 2, 5, 10]   # pre-computed lag steps in the lag lookup table

@@ -1,0 +1,13 @@
+# ── GNN architecture ──
+hidden_dim: 96
+dropout: 0.1
+lag_steps: 2
+activation: elu         
+
+# ── MLP architecture ──
+mlp:
+  layers: [64, 64]
+  dropout: 0.1
+  activation: elu
+  use_layernorm: false
+  epochs: 200             

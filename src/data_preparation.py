@@ -211,6 +211,7 @@ def build_fundamental_tensor(
     fundamental_df: pd.DataFrame,
     returns: pd.DataFrame,
     stocks: List[str],
+    fundamental_data_available: bool = True
 ) -> Tuple[Optional[np.ndarray], List[str]]:
     """
     Align fundamental data to the returns time axis and produce a 3-D tensor
@@ -273,7 +274,7 @@ def build_fundamental_tensor(
     has_data = np.isfinite(tensor).any()
     # NOTE: original code force-disables fundamentals;
     # flip the flag below when you want them back.
-    has_data = False
+    has_data = has_data and fundamental_data
 
     if not has_data:
         return None, []

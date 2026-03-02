@@ -57,6 +57,7 @@ def create_features(
     target_horizon: int = TARGET_HORIZON,
     lookbacks: Tuple[int, ...] = LOOKBACKS,
     vol_window: int = 20,
+
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, List[int], Dict[int, int]]:
     """
     Build the sample-level dataset from raw returns.
@@ -270,6 +271,7 @@ def prepare_all_data(
     lag_configs: List[int] = None,
     # data-source params
     target_returns_filename: str = "future_1day_returns.csv",
+    use_fundamental_data: bool = True,
 ) -> dict:
     """
     One-call data preparation.  Loads everything, builds features / graphs /
@@ -324,7 +326,7 @@ def prepare_all_data(
 
     # --- Fundamental tensor ---
     fundamental_tensor, fund_features = build_fundamental_tensor(
-        fundamental_df, returns, stocks
+        fundamental_df, returns, stocks,use_fundamental_data
     )
     print(f"Stocks: {len(stocks)}, Time steps: {len(returns)}")
     if fundamental_tensor is not None:
