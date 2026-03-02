@@ -4,3 +4,7 @@ defaults:
 
 project_name: asset_prediction
 output_dir: outputs
+
+# Run-level params (not data/model/training specific)
+seed: 42
+device: auto   # auto | cpu | cuda | mps

@@ -11,13 +11,13 @@ Usage
 python main.py
 
 # override individual params from CLI
-python main.py data.feature_window=30 training.lr=0.0005
+python main.py data.feature_window=30 data.n_splits=3
 
-# swap to a different model config file (configs/model/large.yaml)
-python main.py model=large
+# override seed / device
+python main.py seed=0 device=cpu
 
 # grid search with multirun
-python main.py --multirun model.gnn_hidden_dim=64,96,128 training.lr=0.001,0.0005
+python main.py --multirun data.feature_window=10,20,30
 """
 
 import hydra
@@ -35,7 +35,7 @@ def _resolve_device(device_str: str) -> torch.device:
     return torch.device(device_str)
 
 
-@hydra.main(config_path="configs", config_name="base", version_base=None)
+@hydra.main(config_path="../configs", config_name="base", version_base=None)
 def main(cfg: DictConfig) -> None:
     # Print the full resolved config at the start of every run
     print("=" * 80)
@@ -47,8 +47,8 @@ def main(cfg: DictConfig) -> None:
     # -------------------------------------------------------------------------
     # Seed & device
     # -------------------------------------------------------------------------
-    seed_everything(cfg.training.seed)
-    device = _resolve_device(cfg.training.device)
+    seed_everything(cfg.seed)
+    device = _resolve_device(cfg.device)
 
     # -------------------------------------------------------------------------
     # Data preparation
@@ -59,7 +59,7 @@ def main(cfg: DictConfig) -> None:
         device=device,
         n_splits=cfg.data.n_splits,
         embargo=cfg.data.embargo,
-        seed=cfg.training.seed,
+        seed=cfg.seed,
         # feature params
         feature_window=cfg.data.feature_window,
         target_horizon=cfg.data.target_horizon,
