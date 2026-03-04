@@ -13,7 +13,7 @@ Architecture (from Architecture.md):
 
 Includes:
     - MultiRelGNN         : nn.Module (the model)
-    - ICLoss              : nn.Module (IC + MSE + turnover loss)
+    - ICLoss              : nn.Module (IC + turnover loss)
     - train_one_fold      : function  (full training loop for one fold)
 """
 
@@ -27,7 +27,7 @@ import torch.nn.functional as F
 from torch_geometric.nn import GCNConv
 from omegaconf import DictConfig
 
-from asset_prediction.src.data_preparation import FoldData
+from data_preparation import FoldData
 
 
 # ---------------------------------------------------------------------------
@@ -155,11 +155,10 @@ class MultiRelGNN(nn.Module):
 # ---------------------------------------------------------------------------
 
 class ICLoss(nn.Module):
-    """IC + MSE + turnover penalty, batched."""
+    """IC + turnover penalty, batched."""
 
-    def __init__(self, ic_weight: float = 0.5, turnover_weight: float = 0.0):
+    def __init__(self, turnover_weight: float = 0.0):
         super().__init__()
-        self.ic_weight = ic_weight
         self.turnover_weight = turnover_weight
         self.prev_pred: Optional[torch.Tensor] = None
 
@@ -182,7 +181,7 @@ class ICLoss(nn.Module):
         p_std = torch.sqrt((p_c ** 2).sum(dim=1) + 1e-8)
         t_std = torch.sqrt((t_c ** 2).sum(dim=1) + 1e-8)
         ic = cov / (p_std * t_std + 1e-8)
-        ic_loss = self.ic_weight * (1.0 - ic)
+        ic_loss = 1.0 - ic
 
         # --- Turnover penalty ---
         turnover_penalty = torch.zeros_like(ic_loss)
@@ -252,7 +251,7 @@ def train_one_fold(
 
     Returns
     -------
-    dict with keys: epoch_losses, epoch_ics, epoch_mses
+    dict with keys: epoch_losses, epoch_ics
     """
     tcfg = cfg.training
     mcfg = cfg.model
@@ -263,7 +262,6 @@ def train_one_fold(
     batch_size = int(tcfg.batch_size)
     num_epochs = int(tcfg.epochs)
     max_lr = float(tcfg.max_lr)
-    ic_weight = float(tcfg.ic_weight)
     turnover_weight = float(tcfg.turnover_weight)
     grad_clip = float(tcfg.grad_clip)
 
@@ -286,7 +284,7 @@ def train_one_fold(
         anneal_strategy="cos",
     )
 
-    criterion = ICLoss(ic_weight=ic_weight, turnover_weight=turnover_weight)
+    criterion = ICLoss(turnover_weight=turnover_weight)
 
     # --- Pre-compute lag indices for the train set ---
     train_lag_idx = torch.tensor(
@@ -300,7 +298,6 @@ def train_one_fold(
     history: Dict[str, List[float]] = {
         "epoch_losses": [],
         "epoch_ics": [],
-        "epoch_mses": [],
     }
 
     # --- Epoch loop ---
@@ -310,7 +307,6 @@ def train_one_fold(
 
         epoch_loss = 0.0
         epoch_ic = 0.0
-        epoch_mse = 0.0
         epoch_turn = 0.0
         num_batches = 0
 
@@ -361,21 +357,18 @@ def train_one_fold(
 
             epoch_loss += batch_loss.item()
             epoch_ic += stats["ic_loss"]
-            epoch_mse += stats["mse"]
             epoch_turn += stats["turnover_penalty"]
             num_batches += 1
 
         denom = max(1, num_batches)
         history["epoch_losses"].append(epoch_loss / denom)
         history["epoch_ics"].append(epoch_ic / denom)
-        history["epoch_mses"].append(epoch_mse / denom)
 
         if (epoch + 1) % 20 == 0:
             print(
                 f"    Fold {fold_data.fold_idx} | Epoch {epoch+1:>3d}/{num_epochs} | "
                 f"Loss {epoch_loss/denom:.6f} | "
                 f"IC {epoch_ic/denom:.6f} | "
-                f"MSE {epoch_mse/denom:.6f} | "
                 f"Turn {epoch_turn/denom:.6f}"
             )
 

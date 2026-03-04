@@ -5,8 +5,8 @@ weight_decay: 1.0e-4
 betas: [0.9, 0.999]
 warmup_pct: 0.2          # fraction of steps for OneCycleLR warmup
 
-epochs: 200
-batch_size: 32
+epochs: 70
+batch_size: 16
 
 turnover_weight: 0.01    # penalise prediction churn
 grad_clip: 1.0           # max gradient norm

@@ -2,6 +2,7 @@ defaults:
   - data: default
   - model: default
   - training: default
+  - backtester: default
   - _self_
 
 project_name: asset_prediction

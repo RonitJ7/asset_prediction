@@ -1,0 +1,3 @@
+top_k: 50
+softmax_temp: 0.1
+transaction_cost_bps: 10

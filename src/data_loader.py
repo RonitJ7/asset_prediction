@@ -17,7 +17,7 @@ import torch
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import RobustScaler
 
-from asset_prediction.src.data_preparation import (
+from data_preparation import (
     # constants
     BASE_SEED,
     EMBARGO,

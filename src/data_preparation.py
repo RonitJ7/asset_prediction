@@ -274,7 +274,7 @@ def build_fundamental_tensor(
     has_data = np.isfinite(tensor).any()
     # NOTE: original code force-disables fundamentals;
     # flip the flag below when you want them back.
-    has_data = has_data and fundamental_data
+    has_data = has_data and fundamental_data_available
 
     if not has_data:
         return None, []

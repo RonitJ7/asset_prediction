@@ -6,8 +6,8 @@ activation: elu
 
 # ── MLP architecture ──
 mlp:
-  layers: [64, 64]
+  layers: [32,64,32]
   dropout: 0.1
   activation: elu
   use_layernorm: false
-  epochs: 200             
+  epochs: 40           
