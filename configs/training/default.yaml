@@ -10,13 +10,3 @@ batch_size: 16
 
 turnover_weight: 0.01    # penalise prediction churn
 grad_clip: 1.0           # max gradient norm
-
-# ── MLP training hyperparameters ──
-mlp:
-  lr: 1.0e-3
-  max_lr: 5.0e-3
-  weight_decay: 1.0e-4
-  betas: [0.9, 0.999]
-  warmup_pct: 0.2
-  batch_size: 64
-  grad_clip: 1.0

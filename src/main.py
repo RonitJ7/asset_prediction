@@ -27,8 +27,8 @@ import hydra
 from data_loader import prepare_all_data
 from data_preparation import seed_everything, get_best_device, build_corr_edge_index
 from gnn_model import MultiRelGNN, train_one_fold
-from mlp import ReturnClassifierMLP, train_mlp_fold
-from backtester import evaluate_model_per_fold, get_sharpe_ratio
+from mlp import build_mlp_pipeline, train_and_predict
+from backtester import evaluate_predictions_per_fold, get_sharpe_ratio
 
 
 def _resolve_device(device_str: str) -> torch.device:
@@ -176,54 +176,30 @@ def main(cfg: DictConfig) -> None:
         X_train_aug = torch.cat([fold_data.X_train_tensor, gnn_train_scores], dim=2)
         X_test_aug = torch.cat([fold_data.X_test_tensor, gnn_test_scores], dim=2)
 
-        # Create a modified fold_data with augmented features for MLP training
-        from data_preparation import FoldData
-        fold_data_aug = FoldData(
-            fold_idx=fold_data.fold_idx,
-            train_idx=fold_data.train_idx,
-            test_idx=fold_data.test_idx,
-            X_train_tensor=X_train_aug,
-            X_test_tensor=X_test_aug,
-            y_train_tensor=fold_data.y_train_tensor,
-            y_test_tensor=fold_data.y_test_tensor,
-            y_train=fold_data.y_train,
-            y_test=fold_data.y_test,
-            vol_train=fold_data.vol_train,
-            vol_test=fold_data.vol_test,
-            global_lookup=fold_data.global_lookup,
-            symbols=fold_data.symbols,
-        )
+        # Convert to numpy for sklearn: [S, N, F+1]
+        X_train_np = X_train_aug.cpu().numpy()
+        X_test_np = X_test_aug.cpu().numpy()
 
         # -------------------------------------------------------------
-        # Step 4: Train MLP on augmented features
+        # Step 4: Train sklearn MLP on augmented features
         # -------------------------------------------------------------
-        mlp_input_dim = total_input_features + 1  # +1 for GNN score
-        print(f"\n  [MLP] Training ({cfg.model.mlp.epochs} epochs, input_dim={mlp_input_dim})...")
-        seed_everything(cfg.seed)
-        mlp_model = ReturnClassifierMLP(
-            input_dim=mlp_input_dim,
-            layers=list(cfg.model.mlp.layers),
-            dropout=cfg.model.mlp.dropout,
-            activation=cfg.model.mlp.activation,
-            use_layernorm=cfg.model.mlp.use_layernorm,
-        ).to(device)
+        F_aug = X_train_np.shape[2]
+        mlp_cfg = cfg.model.mlp
+        print(f"\n  [MLP] Training sklearn MLPClassifier (input_dim={F_aug}, "
+              f"hidden={tuple(mlp_cfg.layers)}, max_iter={mlp_cfg.max_iter})...")
 
-        mlp_history = train_mlp_fold(
-            model=mlp_model,
-            fold_data=fold_data_aug,
-            cfg=cfg,
-            device=device,
-        )
+        mlp_pipeline = build_mlp_pipeline(cfg, seed=cfg.seed)
+        test_preds = train_and_predict(mlp_pipeline, X_train_np, fold_data.y_train, X_test_np)
 
         # -------------------------------------------------------------
         # Step 5: Evaluate
         # -------------------------------------------------------------
         print(f"\n  [EVAL] Portfolio evaluation:")
-        fold_results = evaluate_model_per_fold(
-            model=mlp_model,
+        fold_results = evaluate_predictions_per_fold(
+            predictions=test_preds,
+            fold_data=fold_data,
             top_k=cfg.backtester.top_k,
             softmax_temp=cfg.backtester.softmax_temp,
-            fold_data=fold_data_aug,
             transaction_cost_bps=cfg.backtester.transaction_cost_bps,
         )
 

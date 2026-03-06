@@ -4,10 +4,10 @@ dropout: 0.1
 lag_steps: 2
 activation: elu         
 
-# ── MLP architecture ──
+# ── MLP (sklearn MLPClassifier) ──
 mlp:
-  layers: [64,64]
-  dropout: 0.1
-  activation: elu
-  use_layernorm: false
-  epochs: 40           
+  layers: [64, 32]
+  activation: relu
+  alpha: 1.0e-4
+  learning_rate_init: 1.0e-3
+  max_iter: 50

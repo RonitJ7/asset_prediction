@@ -156,22 +156,65 @@ def evaluate_model_per_fold(
     return results
 
 
+def evaluate_predictions_per_fold(
+        predictions,
+        fold_data,
+        top_k=50,
+        softmax_temp=0.25,
+        transaction_cost_bps=25,
+        debug=False,
+):
+    """
+    Evaluate numpy predictions (e.g. from sklearn) against fold actuals.
 
+    Parameters
+    ----------
+    predictions : np.ndarray [S_test, N]  (scores or probabilities)
+    fold_data   : FoldData
+    """
+    fold_returns = []
+    fold_spearman_ic = []
+    fold_turnover = []
+    fold_hit_rate = []
+    fold_metrics = []
+    Portfolio = PortfolioConstructor(top_k,softmax_temp,transaction_cost_bps,debug)
+    curr_portfolio_value = 1.0
+    max_portfolio_value = 1.0
+    max_drawdown = 0.0
+    for i in range(predictions.shape[0]):
+        preds = predictions[i]                # [N]
+        actuals = fold_data.y_test[i]         # [N]
+        metrics = Portfolio.construct_portfolio(preds, actuals)
+        curr_portfolio_value *= (1.0 + metrics['net_returns'])
+        max_portfolio_value = max(max_portfolio_value, curr_portfolio_value)
+        max_drawdown = max(max_drawdown,1.0 - curr_portfolio_value/(max_portfolio_value + 1e-12))
+        fold_returns.append(metrics['net_returns'])
+        fold_spearman_ic.append(metrics['spearman_ic'])
+        fold_turnover.append(metrics['turnover'])
+        fold_hit_rate.append(metrics['hit_rate'])
+        fold_metrics.append(metrics)
 
-
-
-
-
-            
-
-
-
-
-
-
-
-        
-
-        
+    avg_return = np.mean(fold_returns)
+    avg_spearman_ic = np.nanmean(fold_spearman_ic)
+    avg_turnover = np.mean(fold_turnover)
+    avg_turnover_costs = avg_turnover*Portfolio.transaction_cost
+    avg_hit_rate = np.mean(fold_hit_rate)
+    sharpe_ratio = get_sharpe_ratio(fold_returns, 252)
+    print(f"Sharpe Ratio: {sharpe_ratio:.4f}")
+    print(f"Avg Return: {avg_return:.6f} | Hit Rate: {avg_hit_rate:.4f} | Spearman IC: {avg_spearman_ic:.4f}")
+    print(f"Avg Turnover: {avg_turnover:.4f} | Avg Turnover Cost: {avg_turnover_costs:.6f}")
+    print(f"Final Portfolio Value: {curr_portfolio_value:.4f} | Max Drawdown: {max_drawdown*100:.2f}%")
+    results = {
+        'avg_return': float(avg_return),
+        'avg_spearman_ic': float(avg_spearman_ic),
+        'avg_turnover': float(avg_turnover),
+        'avg_turnover_costs': float(avg_turnover_costs),
+        'avg_hit_rate': float(avg_hit_rate),
+        'sharpe_ratio': float(sharpe_ratio),
+        'final_portfolio_value': float(curr_portfolio_value),
+        'max_drawdown_pct': float(max_drawdown*100),
+        'fold_returns': fold_returns
+    }
+    return results
 
     
