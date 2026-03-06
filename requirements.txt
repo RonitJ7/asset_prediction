@@ -1,7 +1,5 @@
 numpy
 pandas
-torch
-torch-geometric
 scikit-learn
 scipy
 hydra-core
