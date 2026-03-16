@@ -4,7 +4,6 @@
 
 # Where processed CSVs and JSONs live
 data_dir: processed_data
-
 # Filenames
 target_returns_filename: future_1day_returns.csv
 

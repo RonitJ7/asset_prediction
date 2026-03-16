@@ -4,10 +4,22 @@ dropout: 0.1
 lag_steps: 2
 activation: elu         
 
+# ── Prediction model selector ──
+selected_model: rf    # mlp | rf
+
 # ── MLP (sklearn MLPClassifier) ──
 mlp:
-  layers: [64, 64]
+  layers: [32, 32]
   activation: relu
   alpha: 1.0e-4
   learning_rate_init: 1.0e-3
-  max_iter: 50
+  max_iter: 150
+
+# ── Random Forest (sklearn RandomForestClassifier) ──
+rf:
+  n_estimators: 300
+  max_depth: 5
+  min_samples_split: 2
+  min_samples_leaf: 1
+  max_features: sqrt
+  n_jobs: -1

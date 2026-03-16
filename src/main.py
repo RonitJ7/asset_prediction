@@ -27,7 +27,8 @@ import hydra
 from data_loader import prepare_all_data
 from data_preparation import seed_everything, get_best_device, build_corr_edge_index
 from gnn_model import MultiRelGNN, train_one_fold
-from mlp import build_mlp_pipeline, train_and_predict
+from mlp import build_mlp_pipeline, train_and_predict as train_and_predict_mlp
+from rf import build_rf_pipeline, train_and_predict as train_and_predict_rf
 from backtester import evaluate_predictions_per_fold, get_sharpe_ratio
 
 
@@ -186,14 +187,29 @@ def main(cfg: DictConfig) -> None:
             X_test_np = fold_data.X_test_tensor.cpu().numpy()
 
         # -------------------------------------------------------------
-        # Step 4: Train sklearn MLP on augmented features
+        # Step 4: Train selected sklearn classifier on features
         # -------------------------------------------------------------
         F_aug = X_train_np.shape[2]
-        mlp_cfg = cfg.model.mlp
-        print(f"\n  [MLP] Training sklearn MLPClassifier (input_dim={F_aug}, hidden={tuple(mlp_cfg.layers)}, max_iter={mlp_cfg.max_iter})...")
+        selected_model = str(cfg.model.selected_model).lower()
 
-        mlp_pipeline = build_mlp_pipeline(cfg, seed=cfg.seed)
-        test_preds = train_and_predict(mlp_pipeline, X_train_np, fold_data.y_train, X_test_np)
+        if selected_model == "mlp":
+            mlp_cfg = cfg.model.mlp
+            print(f"\n  [MLP] Training sklearn MLPClassifier (input_dim={F_aug}, hidden={tuple(mlp_cfg.layers)}, max_iter={mlp_cfg.max_iter})...")
+            model_pipeline = build_mlp_pipeline(cfg, seed=cfg.seed)
+            test_preds = train_and_predict_mlp(model_pipeline, X_train_np, fold_data.y_train, X_test_np)
+        elif selected_model == "rf":
+            rf_cfg = cfg.model.rf
+            print(
+                f"\n  [RF] Training sklearn RandomForestClassifier "
+                f"(input_dim={F_aug}, n_estimators={rf_cfg.n_estimators}, max_depth={rf_cfg.max_depth})..."
+            )
+            model_pipeline = build_rf_pipeline(cfg, seed=cfg.seed)
+            test_preds = train_and_predict_rf(model_pipeline, X_train_np, fold_data.y_train, X_test_np)
+        else:
+            raise ValueError(
+                f"Unsupported cfg.model.selected_model='{cfg.model.selected_model}'. "
+                "Use one of: ['mlp', 'rf']."
+            )
 
         # -------------------------------------------------------------
         # Step 5: Evaluate
