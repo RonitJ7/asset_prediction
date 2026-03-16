@@ -6,7 +6,7 @@ activation: elu
 
 # ── MLP (sklearn MLPClassifier) ──
 mlp:
-  layers: [64, 32]
+  layers: [64, 64]
   activation: relu
   alpha: 1.0e-4
   learning_rate_init: 1.0e-3

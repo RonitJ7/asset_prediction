@@ -119,7 +119,7 @@ def create_features(
         price_features = np.concatenate([lag_feats, engineered_feats], axis=1).astype(np.float32)
 
         # --- Targets & volatilities ---
-        targets = target_returns.iloc[t].values
+        targets = target_returns.iloc[t-1].values
         vols    = volatilities_df.iloc[t].values
 
         # --- Fundamentals snapshot ---

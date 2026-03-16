@@ -7,6 +7,7 @@ defaults:
 
 project_name: asset_prediction
 output_dir: outputs
+use_gnn: False
 
 # Run-level params (not data/model/training specific)
 seed: 42

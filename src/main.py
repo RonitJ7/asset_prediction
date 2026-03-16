@@ -180,13 +180,17 @@ def main(cfg: DictConfig) -> None:
         X_train_np = X_train_aug.cpu().numpy()
         X_test_np = X_test_aug.cpu().numpy()
 
+        if not cfg.use_gnn:
+            print("\n  [NOTE] --no-gnn flag is set: using original features without GNN scores.")
+            X_train_np = fold_data.X_train_tensor.cpu().numpy()
+            X_test_np = fold_data.X_test_tensor.cpu().numpy()
+
         # -------------------------------------------------------------
         # Step 4: Train sklearn MLP on augmented features
         # -------------------------------------------------------------
         F_aug = X_train_np.shape[2]
         mlp_cfg = cfg.model.mlp
-        print(f"\n  [MLP] Training sklearn MLPClassifier (input_dim={F_aug}, "
-              f"hidden={tuple(mlp_cfg.layers)}, max_iter={mlp_cfg.max_iter})...")
+        print(f"\n  [MLP] Training sklearn MLPClassifier (input_dim={F_aug}, hidden={tuple(mlp_cfg.layers)}, max_iter={mlp_cfg.max_iter})...")
 
         mlp_pipeline = build_mlp_pipeline(cfg, seed=cfg.seed)
         test_preds = train_and_predict(mlp_pipeline, X_train_np, fold_data.y_train, X_test_np)
