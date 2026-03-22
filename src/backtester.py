@@ -57,7 +57,9 @@ class PortfolioConstructor:
             turnover = float(np.abs(positions-self.prev_positions).sum())
         self.prev_positions = positions.copy()
 
-        returns = (actuals[long_idx]*long_weights + (-actuals[short_idx])*short_weights).sum()
+        long_ret = float((actuals[long_idx] * long_weights).sum())
+        short_ret = float((actuals[short_idx] * short_weights).sum())
+        returns = long_ret - short_ret
         turnover_costs = turnover*self.transaction_cost
         net_returns = returns - turnover_costs
 

@@ -1,0 +1,70 @@
+data:
+  data_dir: processed_data
+  target_returns_filename: future_1day_returns.csv
+  feature_window: 10
+  vol_window: 20
+  lookbacks:
+  - 10
+  - 20
+  target_horizon: 1
+  use_fundamental_data: false
+  lag_configs:
+  - 1
+  - 2
+  - 5
+  - 10
+  corr_threshold: 0.27
+  n_splits: 5
+  embargo: 15
+model:
+  hidden_dim: 96
+  dropout: 0.1
+  lag_steps: 2
+  activation: elu
+  selected_model: xgb
+  mlp:
+    layers:
+    - 32
+    - 32
+    activation: relu
+    alpha: 0.0001
+    learning_rate_init: 0.001
+    max_iter: 150
+  rf:
+    n_estimators: 300
+    max_depth: 5
+    min_samples_split: 2
+    min_samples_leaf: 1
+    max_features: sqrt
+    n_jobs: -1
+  xgb:
+    n_estimators: 600
+    learning_rate: 0.153288309671314
+    max_depth: 7
+    subsample: 0.9897127958863723
+    colsample_bytree: 0.6093259632313537
+    reg_lambda: 1.4586003125997644
+    min_child_weight: 2.572406606155683
+    gamma: 1.8512115453829074
+    reg_alpha: 0.11458133760176178
+training:
+  lr: 0.0001
+  max_lr: 0.003
+  weight_decay: 0.0001
+  betas:
+  - 0.9
+  - 0.999
+  warmup_pct: 0.2
+  epochs: 70
+  batch_size: 16
+  turnover_weight: 0.01
+  grad_clip: 1.0
+backtester:
+  top_k: 50
+  softmax_temp: 0.1
+  transaction_cost_bps: 10.0
+project_name: asset_prediction
+output_dir: outputs
+use_gnn: false
+seed: 42
+device: auto

@@ -1,0 +1,17 @@
+- seed=42
+- model.selected_model=xgb
+- use_gnn=false
+- data.n_splits=5
+- data.feature_window=30
+- data.lookbacks=[10,20]
+- backtester.top_k=50
+- backtester.transaction_cost_bps=10.0
+- model.xgb.n_estimators=200
+- model.xgb.learning_rate=0.01123007474226885
+- model.xgb.max_depth=2
+- model.xgb.subsample=0.8449874033290554
+- model.xgb.colsample_bytree=0.9734809381950746
+- model.xgb.reg_lambda=0.00011753331515379362
+- model.xgb.min_child_weight=28.799910133257928
+- model.xgb.gamma=0.05804503406864003
+- model.xgb.reg_alpha=9.763711231168194e-05

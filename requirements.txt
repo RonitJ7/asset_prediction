@@ -4,3 +4,5 @@ scikit-learn
 scipy
 hydra-core
 omegaconf
+xgboost
+optuna

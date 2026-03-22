@@ -1,0 +1,11 @@
+n_trials: 50
+timeout_sec: 0
+trial_timeout_sec: 3600
+study_name: all_models_tuning
+storage: sqlite:///outputs/optuna_tuning.db
+seed: 42
+n_splits: 5
+transaction_cost_bps: 10.0
+enable_gnn_search: false
+show_main_logs: true
+

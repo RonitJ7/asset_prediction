@@ -5,7 +5,7 @@ lag_steps: 2
 activation: elu         
 
 # ── Prediction model selector ──
-selected_model: rf    # mlp | rf
+selected_model: xgb    # mlp | rf | xgb
 
 # ── MLP (sklearn MLPClassifier) ──
 mlp:
@@ -23,3 +23,15 @@ rf:
   min_samples_leaf: 1
   max_features: sqrt
   n_jobs: -1
+
+# ── XGBoost (xgboost.XGBClassifier) ──
+xgb:
+  n_estimators: 600
+  learning_rate: 0.05
+  max_depth: 4
+  subsample: 0.8
+  colsample_bytree: 0.8
+  reg_lambda: 1.0
+  min_child_weight: 5.0
+  gamma: 0.0
+  reg_alpha: 0.0

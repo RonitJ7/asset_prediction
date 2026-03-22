@@ -1,0 +1,13 @@
+- seed=42
+- model.selected_model=rf
+- use_gnn=false
+- data.n_splits=5
+- data.feature_window=30
+- data.lookbacks=[5,10,20]
+- backtester.top_k=40
+- backtester.transaction_cost_bps=10.0
+- model.rf.n_estimators=500
+- model.rf.max_depth=6
+- model.rf.min_samples_split=20
+- model.rf.min_samples_leaf=5
+- model.rf.max_features=sqrt

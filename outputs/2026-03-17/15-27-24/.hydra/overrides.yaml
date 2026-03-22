@@ -1,0 +1,12 @@
+- seed=42
+- model.selected_model=mlp
+- use_gnn=false
+- data.n_splits=5
+- data.feature_window=10
+- data.lookbacks=[5,10,20]
+- backtester.top_k=50
+- backtester.transaction_cost_bps=10.0
+- model.mlp.layers=[32,32]
+- model.mlp.alpha=1.1154341843528468e-05
+- model.mlp.learning_rate_init=0.0007484654185103738
+- model.mlp.max_iter=200

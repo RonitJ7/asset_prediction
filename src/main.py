@@ -29,6 +29,7 @@ from data_preparation import seed_everything, get_best_device, build_corr_edge_i
 from gnn_model import MultiRelGNN, train_one_fold
 from mlp import build_mlp_pipeline, train_and_predict as train_and_predict_mlp
 from rf import build_rf_pipeline, train_and_predict as train_and_predict_rf
+from xgb import build_xgb_pipeline, train_and_predict as train_and_predict_xgb
 from backtester import evaluate_predictions_per_fold, get_sharpe_ratio
 
 
@@ -205,10 +206,19 @@ def main(cfg: DictConfig) -> None:
             )
             model_pipeline = build_rf_pipeline(cfg, seed=cfg.seed)
             test_preds = train_and_predict_rf(model_pipeline, X_train_np, fold_data.y_train, X_test_np)
+        elif selected_model == "xgb":
+            xgb_cfg = cfg.model.xgb
+            print(
+                f"\n  [XGB] Training XGBClassifier "
+                f"(input_dim={F_aug}, n_estimators={xgb_cfg.n_estimators}, "
+                f"max_depth={xgb_cfg.max_depth}, lr={xgb_cfg.learning_rate})..."
+            )
+            model_pipeline = build_xgb_pipeline(cfg, seed=cfg.seed)
+            test_preds = train_and_predict_xgb(model_pipeline, X_train_np, fold_data.y_train, X_test_np)
         else:
             raise ValueError(
                 f"Unsupported cfg.model.selected_model='{cfg.model.selected_model}'. "
-                "Use one of: ['mlp', 'rf']."
+                "Use one of: ['mlp', 'rf', 'xgb']."
             )
 
         # -------------------------------------------------------------
